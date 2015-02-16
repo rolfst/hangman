@@ -1,0 +1,20 @@
+<section data-ng-controller="GamesController" data-ng-init="find()">
+	<div class="page-header">
+		<h1>Games</h1>
+	</div>
+	<div class="list-group">
+		<a data-ng-repeat="game in games" data-ng-href="#!/games/{{game._id}}" class="list-group-item">
+			<small class="list-group-item-text">
+				started on
+				<span data-ng-bind="game.created | date:'mediumDate'"></span>
+				by
+				<span data-ng-bind="game.user.displayName"></span>
+			</small>
+			<h4 class="list-group-item-heading" data-ng-bind="game.title"></h4>
+			<p class="list-group-item-text" data-ng-bind="game.shadowword"></p>
+		</a>
+	</div>
+	<div class="alert alert-warning text-center" data-ng-if="games.$resolved && !games.length">
+		No games yet, why don't you <a href="/#!/game/create">start one</a>?
+	</div>
+</section>
