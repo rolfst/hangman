@@ -8,13 +8,13 @@ var mongoose = require('mongoose'),
     , Schema = mongoose.Schema
     , Promise = require('bluebird')
     , Word = require('./word')
-;
+    ;
 
 /**
  * Game Schema
  */
 var GameSchema = new Schema({
-    
+
     status: {
         type: String,
         enum: ['busy', 'failed', 'success']
@@ -24,8 +24,7 @@ var GameSchema = new Schema({
         type: Number,
         default: 10
     }
-    , characters:
-        {type: [String], default:[]}
+    , characters: {type: [String], default: []}
     , user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -35,18 +34,20 @@ var GameSchema = new Schema({
         ref: 'Word'
     }
 
-}, {toJSON: {
-    virtuals: true
-    
-}});
-GameSchema.virtual('gameId').get(function(){
+}, {
+    toJSON: {
+        virtuals: true
+
+    }
+});
+GameSchema.virtual('gameId').get(function () {
     return this._id;
 });
-GameSchema.virtual('shadowword').get(function(){
-   return this.buildWord();
-    
+GameSchema.virtual('shadowword').get(function () {
+    return this.buildWord();
+
 });
-GameSchema.methods.checkLetter = function(letter){
+GameSchema.methods.checkLetter = function (letter) {
     this.characters.push(letter);
     var wordToGuess = this.word.content
         , wordLength = wordToGuess.length
@@ -70,22 +71,24 @@ GameSchema.methods.checkLetter = function(letter){
     return !wrongGuess;
 };
 
-GameSchema.methods.toJSON = function(){
-   var obj = this.toObject();
-    obj.shadowword=this.buildWord();
+GameSchema.methods.toJSON = function () {
+    var obj = this.toObject();
+    obj.shadowword = this.buildWord();
     obj.word = null;
     return obj;
 };
 
-GameSchema.methods.buildWord = function(){
-    if (this.status === 'busy') {
+GameSchema.methods.buildWord = function () {
+    if (this.status !== 'success') {
         var wordToGuess = this.word.content
             , self = this
             , wordLength = wordToGuess.length
             , correctGuesses = 0
             , placeholders = _.map(wordToGuess.split(""), function (letter) {
+                //we are going to return '_' for each letter
                 return '_'
             });
+        
         // split the placeholders into an array
         // loop through the array
         _.forEach(self.characters, function (letter) {
@@ -104,10 +107,10 @@ GameSchema.methods.buildWord = function(){
         // convert the array to a string and display it again
         return placeholders.join('');
     }
-    if (this.status === 'success') {
+    // just be fast with success no need to recalculate the shadow word again
+    if (this.status === 'success'){
         return this.word.content;
     }
-    if (this.status === 'failure') return '';
 };
 
 
